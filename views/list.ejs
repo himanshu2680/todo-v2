@@ -6,16 +6,27 @@
 
   <div class="box">
     <% for (let i=0; i<newListItems.length; i++) { %>
-      <div class="item">
-        <input type="checkbox">
-        <p><%=  newListItems[i]  %></p>
+      <div class="item flex">
+        <% if(newListItems[i].checked==true){ %>
+          <form action="/check" method="post" class="checkform">
+            <input type='hidden' value='0' name="checkbox<%=i%>">
+            <input type="checkbox" name="checkbox<%=i%>" onChange="this.form.submit()"  value='1' checked>
+            <p><%=  newListItems[i].name  %></p>
+          </form>
+        <%  }  else { %>
+          <form action="/check" method="post" class="checkform">
+            <input type="checkbox" name="checkbox<%=i%>" onChange="this.form.submit()"  value='1'>
+            <p><%=  newListItems[i].name  %></p>
+          </form>
+        <%  } %>
+        <img src="close.svg" alt="close" class="bt-close">
       </div>
-      <% } %>
+    <% } %>
 
       <form class="item" action="/" method="post">
-        <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
+        <input type="text" name="newItem" placeholder="New Item" autocomplete="off" autofocus>
         <button type="submit" name="list">+</button>
       </form>
   </div>
-
 <%- include("footer") -%>
+
