@@ -35,7 +35,7 @@ h1 {
   justify-content: flex-start;
 }
 
-.checkform{
+.contentForm{
   display: contents;
 }
 
@@ -46,6 +46,18 @@ h1 {
   height: 25px;
   cursor: pointer;
 }
+
+.bt-close-container{
+  margin-left: auto;
+  margin-right: 10px;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  height: 25px;
+  width: 25px;
+  outline: none;
+}
+
 
 div.item:hover .bt-close{
   visibility: visible;
@@ -63,6 +75,7 @@ input:checked + p {
 input[type="checkbox"] {
   margin: 20px;
   transform: scale(1.75);
+  cursor: pointer;
 }
 
 p {
@@ -78,7 +91,7 @@ form.item {
   margin-left: 20px;
 }
 
-button {
+button.add {
   min-height: 50px;
   width: 50px;
   border-radius: 50%;

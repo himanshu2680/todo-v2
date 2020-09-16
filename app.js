@@ -48,10 +48,19 @@ app.post("/check", function(req, res){
     res.redirect("/")
 })
 
+
+app.post("/close", function(req, res){
+  var deleteId = req.body.delete;
+  Item.deleteOne({_id:deleteId}, function(err){})
+  res.redirect("/")
+})
+
+
+
 app.post("/", function(req, res){  
   var newItem = new Item({
     name: req.body.newItem,
-    checked:true
+    checked:false
   })
   newItem.save()
   // console.log(req.body.checkbox);
