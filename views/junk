@@ -1,0 +1,11 @@
+<div class="box side-box">
+  <% for (let i=0; i<listsArray.length; i++) { %>
+    <p><%= listsArray[i] %></p>
+  <% } %>
+  <form class="list"  method="post">
+    <input type="text" name="newList" value="" class="listInput" placeholder="New List">
+    <button type="submit" class="add small" name="button">+</button>
+  </form>
+</div>
+
+ejs commented code for showing list names in the bottom of the page

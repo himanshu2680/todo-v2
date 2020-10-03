@@ -1,39 +1,40 @@
 <%- include("header") -%>
 
-  <div class="box" id="heading">
-    <h1> <%= listTitle %> </h1>
-  </div>
+<div class="box" id="heading">
+  <h1> <%= listTitle %> </h1>
+</div>
 
-  <div class="box">
-    <% for (let i=0; i<newListItems.length; i++) { %>
-      <div class="item flex">
-        <% if(newListItems[i].checked==true){ %>
-          <form action="/check" method="post" class="contentForm">
-            <input type='hidden' value='0' name="checkbox<%=i%>">
-            <input type="checkbox" name="checkbox<%=i%>" onChange="this.form.submit()"  value='1' checked>
-            <p><%=  newListItems[i].name  %></p>
-          </form>
-        <%  }  else { %>
-          <form action="/check" method="post" class="contentForm">
-            <input type="checkbox" name="checkbox<%=i%>" onChange="this.form.submit()"  value='1'>
-            <p><%=  newListItems[i].name  %></p>
-          </form>
-        <%  } %>
-        
-        <form class="contentForm" action="/close" method="post">
-          <button type="submit" name="delete" value="<%= newListItems[i].id %>" class="bt-close-container"><img src="close.svg" alt="close" class="bt-close"></button>
-        </form>
-      </div>
-    <% } %>
+<div class="box">
+  <% for (let i=0; i<newListItems.length; i++) { %>
+  <div class="item flex">
+    <% if(newListItems[i].checked===true){ %>
+    <form action="/check" method="post" class="contentForm">
+      <input type='hidden' value='0' name="<%= newListItems[i]._id %>">
+      <input type="checkbox" name="<%= newListItems[i]._id %>" onChange="this.form.submit()" value='1' checked>
+      <p class="item-p"><%=  newListItems[i].name  %></p>
+      <input type="hidden" name="list" value="<%= listTitle %>"></input>
+    </form>
+    <%  }  else { %>
+    <form action="/check" method="post" class="contentForm">
+      <input type="checkbox" name="<%= newListItems[i]._id %>" onChange="this.form.submit()" value='1'>
+      <p class="item-p"><%=  newListItems[i].name  %></p>
+      <input type="hidden" name="list" value="<%= listTitle %>"></input>
+    </form>
+    <%  } %>
 
-      <form class="item" action="/" method="post">
-        <input type="text" name="newItem" placeholder="New Item" autocomplete="off" autofocus>
-        <button type="submit" name="list" class="add">+</button>
-      </form>
+    <form class="contentForm" action="/close" method="post">
+      <input type="hidden" name="list" value="<%= listTitle %>"></input>
+      <button type="submit" name="delete" value="<%= newListItems[i].id %>" class="bt-close-container"><img src="close.svg" alt="close" class="bt-close"></button>
+    </form>
   </div>
+  <% } %>
+  <form class="item" action="/" method="post">
+    <input type="text" name="newItem" placeholder="New Item" autocomplete="off" required autofocus class="itemsInput">
+    <button type="submit" name="list" class="add" value="<%= listTitle %>">+</button>
+  </form>
+</div>
+
+
+
+
 <%- include("footer") -%>
-
-
-
-
-  

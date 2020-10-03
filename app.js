@@ -3,80 +3,139 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const date = require(__dirname + "/date.js")
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
+const lodash = require('lodash')
 const app = express()
+var defaultItems=[{name:"item 1"}, {name:"item 2"}, {name:"item 3"}]
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static("public"))
-mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect("mongodb+srv://himanshuAdmin:Admin123@cluster0.lgfwg.mongodb.net/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false})
 // /f
 
 const itemSchema = new mongoose.Schema({
   name: String,
   checked: Boolean
 })
-
+const day = date.getDate()
 const Item = mongoose.model("Item", itemSchema)
-var itemsArray =[]
 
 app.get("/", function(req, res) {
-
-  const day = date.getDate()
   Item.find({}, function(err, items){
-    if(err){
-      console.log(err);
-    }
-    else{
+    if(!err){
       res.render("list", {listTitle: day, newListItems: items})
     }
   })
-
 })
 
+
+const customListSchema = new mongoose.Schema(
+  {
+    title:String,
+    listItems:[itemSchema]
+  }
+)
+const CustomList = mongoose.model("CustomList", customListSchema)
+
+app.get("/:customListName", function(req, res){
+  var customListName = lodash.capitalize(req.params.customListName)
+  
+  CustomList.findOne({title:customListName}, function (err, list) {
+    if (err) {
+      console.log(err);
+    }
+    else{
+      //render the said list
+      if (list) {
+        res.render("list", {listTitle: list.title, newListItems: list.listItems})
+      }
+      //create one and render
+      else {
+        var newList = new CustomList({title:customListName, listItems: defaultItems})
+        newList.save()
+        res.render("list", {listTitle: newList.title, newListItems: newList.listItems})
+      }
+    }
+  })
+  
+})
+
+
+
 app.post("/check", function(req, res){
-    var checkedStatus = Boolean(Number(req.body[Object.keys(req.body)[0]])) //returns true if checkbox is checked and false if it is not
-    var checkboxNumber = Number(Object.keys(req.body)[0].slice(8,9)) //returns the position of checkbox and starts from 0
-      Item.find({}, function(err, items){
-        if(err){
-          console.log(err);
-        }
-        else{
-          Item.updateOne(items[checkboxNumber], {checked:checkedStatus}, function(){})
-        }
-      })
-    // console.log(Object.keys(req.body)[0] + " " + req.body[Object.keys(req.body)[0]] + " " + checkedStatus);
+  var itemId = Object.keys(req.body)[0]
+  var listName = req.body.list
+  var checkedStatus = Boolean(Number(req.body[itemId]))
+  
+  if (listName===day) {
+    Item.findByIdAndUpdate(itemId, { checked: checkedStatus }, ()=>{})
     res.redirect("/")
+  }
+  else {
+    CustomList.updateOne(
+      {title:listName, "listItems._id":itemId}, 
+      { $set:{"listItems.$.checked":checkedStatus} }, ()=>{}
+    )
+    res.redirect("/"+listName)
+  }
+  
 })
 
 
 app.post("/close", function(req, res){
-  var deleteId = req.body.delete;
-  Item.deleteOne({_id:deleteId}, function(err){})
-  res.redirect("/")
+  var listName = req.body.list
+  var deleteId = req.body.delete
+  if (listName===day) {
+    Item.deleteOne({_id:deleteId}, function(err){})
+    res.redirect("/")
+  }
+  else {
+    CustomList.updateOne(
+      {title:listName}, 
+      { $pull:{listItems:{_id:deleteId}} }, 
+      (err, foundThis)=>{
+        if (err) {
+          console.log(err);
+        }
+        else {
+          console.log("deleted one");
+        }
+    })
+    res.redirect("/"+listName)
+
+  }
 })
 
 
-
 app.post("/", function(req, res){  
+  var listTitle = req.body.list
   var newItem = new Item({
     name: req.body.newItem,
     checked:false
   })
-  newItem.save()
-  // console.log(req.body.checkbox);
-  res.redirect("/")
+  if (listTitle===day) {
+    newItem.save()
+    res.redirect("/")
+  }
+  else {
+    CustomList.findOne({title: listTitle}, (err, foundThis)=> {
+      if (err) {
+        console.log(err);
+      }
+      else {        
+        foundThis.listItems.push(newItem)
+        foundThis.save()
+        res.redirect("/" + listTitle)
+      }
+    })
+  }
 })
+
 
 
 // f server started
 
-app.listen(3000, function() {
+app.listen(process.env.port || 3000, function() {
   console.log("Server started on port 3000")
 })
 // /f
-
-
-
-
-
-//smashicons close button
